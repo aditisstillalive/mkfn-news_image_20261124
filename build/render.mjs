@@ -26,12 +26,11 @@ try {
   const out = join(root, 'entry.png');
   await page.screenshot({ path: out, clip: { x: 0, y: 0, width: 1024, height: 1024 } });
 
-  // 300 px copy: draw the PNG scaled down in the browser itself.
-  const small = await browser.newPage({ viewport: { width: 300, height: 300 } });
-  await small.goto('file://' + out);
-  await small.setContent(`<body style="margin:0"><img src="file://${out}" style="width:300px;height:300px;display:block"></body>`);
-  await small.waitForTimeout(200);
-  await small.screenshot({ path: join(previewDir, 'preview-300.png') });
+  // 300 px copy: the same page rendered at a 300/1024 device scale.
+  const small = await browser.newPage({ viewport: { width: 1024, height: 1024 }, deviceScaleFactor: 300 / 1024 });
+  await small.goto(pageUrl);
+  await small.evaluate(() => document.fonts.ready);
+  await small.screenshot({ path: join(previewDir, 'preview-300.png'), clip: { x: 0, y: 0, width: 1024, height: 1024 } });
 
   const bytes = statSync(out).size;
   console.log(`entry.png ${bytes} bytes (${(bytes / 1048576).toFixed(3)} MiB)`, bytes > 1048576 ? 'TOO BIG' : 'ok');
