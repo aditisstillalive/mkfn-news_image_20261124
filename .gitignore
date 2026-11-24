@@ -1,0 +1,4 @@
+node_modules/
+out/
+.claude/settings.local.json
+transcripts*.tar.gz
